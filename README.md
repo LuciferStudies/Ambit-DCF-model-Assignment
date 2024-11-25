@@ -15,7 +15,7 @@ This assignment aimed at developing an interactive web application for scrapping
 - NumPy for financial calculations
 
 ### App Demo
-- *Web App Link*: https://internshiptask-ambit.streamlit.app/
+- *Web App Link*: https://growth-roc-dcf-model.streamlit.app/
 - *Code Repository*: https://github.com/shiven06/InternshipTask
 
 ### Features
