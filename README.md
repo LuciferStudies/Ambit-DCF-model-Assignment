@@ -1,46 +1,46 @@
-# Ambit-DCF-model-Assignment
+# Ambit DCF Model Assignment
 
-This project has been developed to recreate a Web application that calculates the intrinsic P/E and degree of overvaluation for companies listed on NSE/BSE based on financial data scraped from the Screener website.
+This project was developed to create a web application that computes intrinsic P/E ratios and the degree of overvaluation for companies listed on the NSE/BSE. It uses financial data sourced from Screener.
 
 ### Overview
 
-This assignment aimed at developing an interactive web application for scrapping the most important financial figures relative to a user-supplied company symbol, say NESTLEIND, from Screener. These are then used in the computation of relevant metrics such as current P/E ratio, FY23 P/E ratio, compounded growth rates for sales and profit, compute the intrinsic P/E and degree of overvaluation using a growth-RoC DCF model.
+The primary objective of this project was to build an interactive web application that retrieves critical financial data for a specified company symbol (e.g., NESTLEIND) from Screener. This data is utilized to calculate metrics such as the current P/E ratio, FY23 P/E ratio, compounded sales and profit growth rates, and to determine the intrinsic P/E and overvaluation degree using a growth-RoC DCF model.
 
-### This application was developed with the help of:
-- Python
-- Streamlit for the user interface
-- Pandas for data manipulation
-- Plotly Express for visualization
-- BeautifulSoup for web scraping
-- NumPy for financial calculations
+### Tools and Technologies
+- **Python**: For backend logic and calculations.
+- **Streamlit**: To create the interactive user interface.
+- **Pandas**: For data manipulation and analysis.
+- **Plotly Express**: For data visualization.
+- **BeautifulSoup**: For scraping web data.
+- **NumPy**: For numerical calculations.
 
-### App Demo
-- *Web App Link*: https://growth-roc-dcf-model.streamlit.app/
-- *Code Repository*: https://github.com/LuciferStudies/Ambit-DCF-model-Assignment
+### App Demonstration
+- **Web App**: [Growth-RoC DCF Model Web App](https://growth-roc-dcf-model.streamlit.app/)
+- **Code Repository**: [GitHub Repository](https://github.com/LuciferStudies/Ambit-DCF-model-Assignment)
 
 ### Features
 
-1. *Company Financial Data Scraping*:  
-   The application will scrape important financial data like Current P/E, FY23 P/E, and 5 yr med RoCE from the Screener page of a given company. It fetches dynamic data for any given company symbol using the URL format https://www.screener.in/company/<symbol>/
+1. **Company Financial Data Scraping**:  
+   Retrieves crucial financial details like Current P/E, FY23 P/E, and 5-year median RoCE from a company’s Screener page. It adapts to any entered company symbol via the format `https://www.screener.in/company/<symbol>/`.
 
-2. *Computed Parameters*:
-   - *Intrinsic P/E*: Calculated through a DCF-based model based on user inputs - cost of capital, RoCE, growth during high growth, etc.
-   - *Degree of Overvaluation*: Calculated as a percentage difference between the lower of the current P/E and FY23 P/E from the calculated intrinsic P/E.
+2. **Computed Metrics**:
+   - **Intrinsic P/E**: Derived using a DCF-based model that considers user-defined variables such as cost of capital and RoCE.
+   - **Degree of Overvaluation**: The percentage difference between the lower of the current or FY23 P/E and the calculated intrinsic P/E.
 
-3. *Growth Analysis*:  
-   The chart below illustrates the compounded growth of Sales and Profit over the last TTM, 3, 5-, and 10-year period using dynamic data from Screener.
+3. **Growth Analysis**:  
+   Displays the compounded sales and profit growth over TTM, 3, 5, and 10-year periods using updated data from Screener.
 
-4. *User Inputs*:  
-   Cost of Capital, RoCE, High Growth Period, Fade Period, and Terminal Growth Rate can be changed by the user via sliders to make the app interactive and customizable.
+4. **User Interactivity**:  
+   Users can adjust inputs like cost of capital, RoCE, growth periods, and rates through interactive sliders, enhancing user engagement and customization.
 
-### Installing
+### Setup Instructions
 
-You can install the required python packages using requirements.txt:
-bash
+Install the necessary Python packages using:
+```
 pip install -r requirements.txt
+```
 
-
-The major dependencies include:
+Key dependencies:
 - Streamlit 1.12.0
 - Requests 2.27.1
 - BeautifulSoup4 4.11.1
@@ -48,31 +48,13 @@ The major dependencies include:
 - Plotly 5.5.0
 - NumPy 1.22.0
 
-### How to Run
 
-1. Clone the repository:
-   bash
-   git clone https://github.com/shiven06/InternshipTask.git
-   
+### Challenges Encountered
 
-3. Enter the project directory and activate your virtual environment:
-   bash
-   cd InternshipTask
-   source venv/bin/activate #on mac
-   
+This project was my first foray into financial data analysis and terminologies such as intrinsic value calculation and DCF models. Although I initially struggled with the implementation of the intrinsic P/E and overvaluation calculations, I invested considerable effort into understanding and accurately emulating the desired functionality. I am eager to receive feedback on potential improvements and to further my knowledge in financial modeling.
 
-5. Install dependencies:
-   bash
-   pip install -r requirements.txt
-   
+### Additional Resources
 
-7. Run the Streamlit app:
-   bash
-   streamlit run Ambit_IE_Internship_Task.py
-   
+For a deeper understanding of the intrinsic P/E calculation, I referred to a [YouTube tutorial](https://www.youtube.com/watch?v=rZHlK5Rjzks) starting at the 29th minute, which was instrumental in grasping the underlying formulas to understand and calculate intrinsic value but could not integrate the logic in the code.
 
-### Challenges Faced
-
-Since this is my first exposure to financial data and terminologies like calculation of intrinsic value and DCF models, I found it difficult to implement correctly the intrinsic P/E and degree of overvaluation. Nevertheless, I certainly put in much effort to understand and exactly replicate the functionality as closely as possible. I would consider myself very happy to get feedback on where improvements might be required and look forward to getting to learn more about financial modeling and applying such knowledge in the time to come.
-
-Thanks for your time.
+Thank you for considering this project.
