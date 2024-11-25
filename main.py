@@ -20,13 +20,11 @@ def fetch_data_from_screener(symbol):
 # Function to extract EPS from the Profit & Loss table
 def extract_eps(parsed_html):
     try:
-        # Locate the Profit & Loss table
         profit_loss_section = parsed_html.find('section', {'id': 'profit-loss'})
         if not profit_loss_section:
             st.warning("Profit & Loss section not found.")
             return None
         
-        # Extract the EPS row
         rows = profit_loss_section.find('table').find_all('tr')
         for row in rows:
             if "EPS in Rs" in row.text:
@@ -63,7 +61,7 @@ def extract_growth(parsed_html, metric_name):
                 growth_data = {}
                 for row in rows:
                     period = row.find_all('td')[0].text.strip()
-                    value = row.find_all('td')[1].text.strip()
+                    value = row.find_all('td')[1].text.strip()   # Append % directly
                     growth_data[period] = value
                 return growth_data
     except Exception as e:
@@ -73,14 +71,12 @@ def extract_growth(parsed_html, metric_name):
 # Function to prepare Compounded Growth Tables
 def prepare_growth_table(growth_data, title):
     df = pd.DataFrame(growth_data.items(), columns=['Period', 'Value'])
-    df['Value'] = df['Value'].str.rstrip('%').astype(float)
     st.subheader(title)
     st.table(df)
 
 # Function to plot Compounded Growth Chart
 def plot_growth_chart(growth_data, title):
     df = pd.DataFrame(growth_data.items(), columns=['Period', 'Value'])
-    df['Value'] = df['Value'].str.rstrip('%').astype(float)
     fig = px.bar(df, x='Period', y='Value', title=title, text='Value')
     st.plotly_chart(fig)
 
@@ -91,15 +87,12 @@ def calculate_intrinsic_pe(eps, growth_rate, roce, coc, high_growth_period, fade
         roce = float(roce) / 100
         coc = float(coc) / 100
         terminal_growth_rate = float(terminal_growth_rate) / 100
-
-        # High Growth Period Calculation
         high_growth_value = 0
         for year in range(1, high_growth_period + 1):
-            projected_eps = eps * ((1 + growth_rate) ** year)  # EPS projection
+            projected_eps = eps * ((1 + growth_rate) ** year)
             discounted_value = projected_eps * (roce / coc) / ((1 + coc) ** year)
             high_growth_value += discounted_value
 
-        # Fade Period Calculation
         fade_value = 0
         for year in range(1, fade_period + 1):
             adjusted_growth_rate = growth_rate - ((year / fade_period) * (growth_rate - terminal_growth_rate))
@@ -107,12 +100,10 @@ def calculate_intrinsic_pe(eps, growth_rate, roce, coc, high_growth_period, fade
             discounted_value = projected_eps * (roce / coc) / ((1 + coc) ** (high_growth_period + year))
             fade_value += discounted_value
 
-        # Terminal Value Calculation
         terminal_eps = eps * ((1 + terminal_growth_rate) ** (high_growth_period + fade_period))
         terminal_value = terminal_eps * (roce / coc) / (coc - terminal_growth_rate)
         terminal_value_discounted = terminal_value / ((1 + coc) ** (high_growth_period + fade_period))
 
-        # Intrinsic Value and Intrinsic P/E
         total_intrinsic_value = high_growth_value + fade_value + terminal_value_discounted
         intrinsic_pe = total_intrinsic_value / eps if eps else None
         return round(intrinsic_pe, 2) if intrinsic_pe else None
@@ -134,18 +125,19 @@ st.write("This app calculates the intrinsic P/E ratio and degree of overvaluatio
 # Sidebar Inputs
 symbol = st.sidebar.text_input("Enter NSE/BSE Symbol (e.g., NESTLEIND)", value="NESTLEIND")
 coc = st.sidebar.slider("Cost of Capital (%)", 8, 16, step=1, value=12)
+roce_slider = st.sidebar.slider("Return on Capital Employed (RoCE) %", 10, 100, step=1, value=20)
 high_growth_period = st.sidebar.slider("High Growth Period (years)", 5, 20, step=1, value=10)
 fade_period = st.sidebar.slider("Fade Period (years)", 5, 15, step=1, value=10)
 growth_rate = st.sidebar.slider("Growth Rate (%)", 5, 20, step=1, value=10)
 terminal_growth_rate = st.sidebar.slider("Terminal Growth Rate (%)", 0, 5, step=1, value=2)
-roce_slider = st.sidebar.slider("Return on Capital Employed (RoCE) %", 10, 100, step=1, value=20)
+
 
 # Trigger Analysis
 if st.button("Run Analysis"):
     parsed_html = fetch_data_from_screener(symbol)
     if parsed_html:
         stock_symbol, current_pe, current_price = extract_metrics(parsed_html)
-        eps = extract_eps(parsed_html)  # Use correct EPS scraping logic
+        eps = extract_eps(parsed_html)
         sales_growth = extract_growth(parsed_html, "Compounded Sales Growth")
         profit_growth = extract_growth(parsed_html, "Compounded Profit Growth")
 
