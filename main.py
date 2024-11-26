@@ -51,7 +51,7 @@ def extract_growth(parsed_html, metric_name):
                 rows = table.find_all('tr')[1:]  # Skipping the header row
                 for row in rows:
                     period = row.find_all('td')[0].text.strip()
-                    value = row.find_all('td')[1].text.strip() 
+                    value = row.find_all('td')[1].text.strip()
                     growth_data[period] = value
     return growth_data
 
@@ -65,26 +65,29 @@ def display_growth_data(growth_data, title):
     st.plotly_chart(fig)
 
 # Calculate intrinsic P/E based on DCF
-def calculate_intrinsic_pe(eps, growth_rate, roce, coc, high_growth_period, fade_period, terminal_growth_rate):
-    growth_rate /= 100
-    roce /= 100
-    coc /= 100
-    terminal_growth_rate /= 100
-    total_value = 0
-    # Calculating the present value for each year's EPS during the high growth period
+def calculate_intrinsic_value(eps, payout_ratio, growth_rate, terminal_growth_rate, high_growth_period, discount_rate):
+    # Initialize variables
+    dividends = []
+    present_values = []
+
+    # Calculate dividends for the high growth period
     for year in range(1, high_growth_period + 1):
-        future_eps = eps * (1 + growth_rate) ** year
-        total_value += future_eps * (roce / coc) / ((1 + coc) ** year)
-    # Calculating fade period
-    for year in range(1, fade_period + 1):
-        adjusted_growth_rate = growth_rate - (year / fade_period) * (growth_rate - terminal_growth_rate)
-        future_eps = eps * (1 + adjusted_growth_rate) ** (high_growth_period + year)
-        total_value += future_eps * (roce / coc) / ((1 + coc) ** (high_growth_period + year))
-    # Calculating terminal value
-    terminal_eps = eps * (1 + terminal_growth_rate) ** (high_growth_period + fade_period)
-    terminal_value = terminal_eps * (roce / coc) / (coc - terminal_growth_rate)
-    total_value += terminal_value / ((1 + coc) ** (high_growth_period + fade_period))
-    return total_value / eps if eps else None
+        # Calculate DPS for the year
+        eps_growth = eps * (1 + growth_rate) ** year
+        dps = eps_growth * payout_ratio
+        # Calculate the present value of this year's dividend
+        pv = dps / (1 + discount_rate) ** year
+        dividends.append(dps)
+        present_values.append(pv)
+
+    # Calculate terminal value at the end of high growth period and discount it
+    terminal_dps = dividends[-1] * (1 + terminal_growth_rate)
+    terminal_value = terminal_dps / (discount_rate - terminal_growth_rate)
+    discounted_terminal_value = terminal_value / (1 + discount_rate) ** high_growth_period
+
+    # Sum all present values and the discounted terminal value
+    intrinsic_value = sum(present_values) + discounted_terminal_value
+    return intrinsic_value
 
 # Calculate degree of overvaluation
 def calculate_overvaluation(current_pe, intrinsic_pe):
@@ -94,12 +97,13 @@ def calculate_overvaluation(current_pe, intrinsic_pe):
 
 # Streamlit UI setup
 st.title("Growth-RoC DCF Model")
-st.write("This app calculates the intrinsic P/E ratio and degree of overvaluation for a company.")
+st.write("This app calculates the intrinsic P/E ratio and degree of overvaluation for a company based on dynamic user inputs.")
 
 # Sidebar Inputs
 symbol = st.sidebar.text_input("Enter NSE/BSE Symbol", "NESTLEIND")
+payout_ratio = st.sidebar.slider("Payout Ratio (%)", min_value=0, max_value=100, value=40, step=5)
 coc = st.sidebar.slider("Cost of Capital (%)", 8, 16, 12)
-roce_slider = st.sidebar.slider("Return on Capital Employed (RoCE) %", 10, 100, 20)
+roce = st.sidebar.slider("Return on Capital Employed (RoCE) %", 10, 100, 20)
 high_growth_period = st.sidebar.slider("High Growth Period (years)", 1, 10, 5)
 fade_period = st.sidebar.slider("Fade Period (years)", 1, 10, 5)
 growth_rate = st.sidebar.slider("Growth Rate (%)", 1, 30, 10)
@@ -111,8 +115,7 @@ if st.button("Analyze"):
         stock_symbol, current_pe, current_price = extract_metrics(parsed_html)
         eps = extract_eps(parsed_html)
         if eps:
-        
-            intrinsic_pe = calculate_intrinsic_pe(eps, growth_rate, roce_slider, coc, high_growth_period, fade_period, terminal_growth_rate)
+            intrinsic_pe = calculate_intrinsic_value(eps, payout_ratio / 100, growth_rate / 100, terminal_growth_rate / 100, high_growth_period, coc / 100)
             overvaluation = calculate_overvaluation(current_pe, intrinsic_pe)
             st.subheader("Financial Analysis")
             st.write(f"**Symbol:** {stock_symbol}")
